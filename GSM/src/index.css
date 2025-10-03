@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* App color variables */
+:root {
+  --color-primary: #4CAF50;
+  --color-secondary: #4A90E2;
+  --color-accent: #FDA811;
+  --color-background: #FBFBFB;
+}
+
+/* Utilities for CSS var usage if needed */
+.text-primary { color: var(--color-primary); }
+.bg-primary { background-color: var(--color-primary); }
+.border-primary { border-color: var(--color-primary); }
+.text-secondary { color: var(--color-secondary); }
+.bg-secondary { background-color: var(--color-secondary); }
+.border-secondary { border-color: var(--color-secondary); }
+.text-accent { color: var(--color-accent); }
+.bg-accent { background-color: var(--color-accent); }
+.border-accent { border-color: var(--color-accent); }
+.bg-app { background-color: var(--color-background); }
+
+/* Base font */
+html, body { font-family: theme('fontFamily.sans'); }
+
+/* Splash logo smooth transition */
+@keyframes fade-scale-in {
+  0% { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.splash-logo {
+  width: 16rem; /* w-64 */
+  height: 16rem; /* h-64 */
+  object-fit: contain;
+  animation: fade-scale-in 600ms ease-out both;
+}
+
+@media (min-width: 768px) {
+  .splash-logo { width: 20rem; height: 20rem; } /* md:w-80 md:h-80 */
+}
+
+/* Brand gradient text utility */
+.brand-gradient-text {
+  background: linear-gradient(90deg, #4CAF50, #4A90E2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.1);
+  filter: contrast(1.05);
+}
+
+/* Subtle float animation */
+@keyframes float-y {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+.animate-float {
+  animation: float-y 4s ease-in-out infinite;
+}

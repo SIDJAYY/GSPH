@@ -1,0 +1,29 @@
+{
+  "name": "capstone-v2",
+  "version": "1.0.0",
+  "description": "Capstone V2 - GSM Frontend with Microservices Backend",
+  "private": true,
+  "scripts": {
+    "start": "concurrently --kill-others --prefix-colors \"cyan,magenta,yellow,green,blue\" --names \"frontend,auth,scholarship,aid,monitoring\" \"npm run dev:frontend\" \"npm run dev:auth\" \"npm run dev:scholarship\" \"npm run dev:aid\" \"npm run dev:monitoring\"",
+    "dev:all": "concurrently --kill-others --prefix-colors \"cyan,magenta,yellow,green,blue\" --names \"frontend,auth,scholarship,aid,monitoring\" \"npm run dev:frontend\" \"npm run dev:auth\" \"npm run dev:scholarship\" \"npm run dev:aid\" \"npm run dev:monitoring\"",
+    "dev:frontend": "cd GSM && npm run dev:full",
+    "dev:auth": "cd microservices/auth_service && php artisan serve --port=8000",
+    "dev:scholarship": "cd microservices/scholarship_service && php artisan serve --port=8001",
+    "dev:aid": "cd microservices/aid_service && php artisan serve --port=8002",
+    "dev:monitoring": "cd microservices/monitoring_service && php artisan serve --port=8003",
+    "install:all": "npm install && cd GSM && npm install && cd ../microservices/auth_service && composer install && cd ../scholarship_service && composer install && cd ../aid_service && composer install && cd ../monitoring_service && composer install",
+    "build:frontend": "cd GSM && npm run build",
+    "start:auth": "cd microservices/auth_service && php artisan serve --port=8000 --host=0.0.0.0",
+    "start:scholarship": "cd microservices/scholarship_service && php artisan serve --port=8001 --host=0.0.0.0",
+    "start:aid": "cd microservices/aid_service && php artisan serve --port=8002 --host=0.0.0.0",
+    "start:monitoring": "cd microservices/monitoring_service && php artisan serve --port=8003 --host=0.0.0.0",
+    "test:services": "node test-services.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "php": ">=8.2.0"
+  }
+}

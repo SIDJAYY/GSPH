@@ -1,0 +1,513 @@
+{
+  "intents": [
+    {
+      "name": "portal_welcome",
+      "displayName": "Portal Welcome",
+      "description": "User enters the main portal and needs guidance on available options",
+      "trainingPhrases": [
+        "What can I do here?",
+        "What options are available?",
+        "How do I start?",
+        "What should I do first?",
+        "I'm on the portal page",
+        "What are the main features?",
+        "Show me the menu",
+        "What's available in the portal?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "Welcome to the Caloocan Scholarship Management Portal! Here are your main options:\n\n1. **Scholar Dashboard** - Track your application status and view your scholarship details\n2. **New Application** - Apply for a new scholarship (4-step process)\n3. **Renewal Application** - Renew your existing scholarship\n4. **UCC Portal** - Access additional resources\n\nYou can also view the scholarship directory for announcements, deadlines, and contact information. Which option would you like to explore?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "new_application_help",
+      "displayName": "New Application Help",
+      "description": "User needs help with the new scholarship application process",
+      "trainingPhrases": [
+        "How do I apply for a new scholarship?",
+        "What's the application process?",
+        "I want to start a new application",
+        "How many steps are there?",
+        "What do I need for the application?",
+        "Tell me about the new application form",
+        "How long does the application take?",
+        "What documents do I need?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "The new scholarship application is a 4-step process:\n\n**Step 1: Personal Information**\n- Name, demographics, contact details\n- Address information\n- PWD status (if applicable)\n\n**Step 2: Parent Information**\n- Mother's and father's details\n- Contact information\n\n**Step 3: Employment & Income Information**\n- Annual income range\n- Family composition\n- Home ownership status\n- Special circumstances (solo parent, indigenous group, etc.)\n\n**Step 4: Scholarship Information**\n- Educational level and school details\n- Course information\n- Academic performance\n\n**Required Documents:**\n- Certificate of Enrollment\n- Transcript of Records\n- Certificate of Good Moral\n- Income Certificate\n- Barangay Certificate\n- Valid ID\n- Birth Certificate\n\nWould you like me to guide you through any specific step?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "renewal_application_help",
+      "displayName": "Renewal Application Help",
+      "description": "User needs help with scholarship renewal process",
+      "trainingPhrases": [
+        "How do I renew my scholarship?",
+        "What's the renewal process?",
+        "I need to renew my application",
+        "Tell me about renewal requirements",
+        "What documents do I need for renewal?",
+        "How often can I renew?",
+        "What's different about renewal vs new application?",
+        "I'm a current scholar, how do I renew?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "The scholarship renewal process includes:\n\n**Personal Information Updates:**\n- Updated contact details\n- Present and permanent address\n- Employment status\n- Marginalized group information\n\n**Scholarship Information:**\n- Scholar ID number\n- Current educational level\n- School year and term\n- Academic performance (GPA)\n- Reason for renewal\n\n**Required Documents:**\n- Certificate of Enrollment\n- Latest Transcript of Records\n- Certificate of Good Moral\n- Income Certificate\n- Barangay Certificate\n- Previous Scholarship Certificate\n- Valid ID\n- Birth Certificate\n- Proof of Residency\n\n**Digital Wallet Information:**\n- GCash, Maya, or other digital wallet details\n- Account number for disbursement\n\nRenewal applications are typically processed faster than new applications. Do you have your Scholar ID number ready?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "scholarship_dashboard_help",
+      "displayName": "Scholarship Dashboard Help",
+      "description": "User needs help understanding the scholarship dashboard",
+      "trainingPhrases": [
+        "What's in the scholarship dashboard?",
+        "How do I check my application status?",
+        "Where can I see my scholarship details?",
+        "How do I track my progress?",
+        "What information is shown in the dashboard?",
+        "How do I view my disbursements?",
+        "Where can I see my requirements status?",
+        "How do I download my certificate?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "The Scholarship Dashboard shows:\n\n**Application Process Flow:**\n- 5 stages: General Requirements → SSC Approval → Approved Application → Grants Processing → Grants Disbursed\n- Visual progress bar showing your current stage\n\n**Your Information:**\n- Reference number and status\n- Student details (name, course, school)\n- Academic year and semester\n- Scholarship type and amount\n\n**Requirements Status:**\n- List of all required documents\n- Submission status and dates\n- Real-time updates\n\n**Disbursements:**\n- Payment schedule and amounts\n- Completion status\n- Payment dates\n\n**Quick Actions:**\n- Download certificate\n- View application details\n- Contact support\n\nYou can also filter by different semesters to view historical data. What specific information are you looking for?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "application_status_inquiry",
+      "displayName": "Application Status Inquiry",
+      "description": "User wants to check their application status",
+      "trainingPhrases": [
+        "What's my application status?",
+        "How do I check if I'm approved?",
+        "Is my application still pending?",
+        "When will I know if I'm approved?",
+        "What stage is my application in?",
+        "How long does approval take?",
+        "Can I check my status online?",
+        "Where do I find my reference number?"
+      ],
+      "parameters": [
+        {
+          "name": "reference_number",
+          "displayName": "Reference Number",
+          "value": "$reference_number",
+          "entityTypeDisplayName": "@sys.any"
+        }
+      ],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "To check your application status, you can:\n\n1. **Use the Scholar Dashboard** - Log in and view your real-time status\n2. **Check your Reference Number** - Use this to track your application\n3. **Contact the Scholarship Office** - Call or email for updates\n\n**Application Stages:**\n- **General Requirements & Interview** - Initial submission and interview\n- **Endorsed to SSC Approval** - Under committee review\n- **Approved Application** - Application approved\n- **Grants Processing** - Preparing disbursement\n- **Grants Disbursed** - Funds released\n\n**Typical Timeline:**\n- New applications: 4-6 weeks\n- Renewal applications: 2-3 weeks\n\nDo you have your reference number? I can help you understand what each stage means."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "document_requirements_help",
+      "displayName": "Document Requirements Help",
+      "description": "User needs help with required documents",
+      "trainingPhrases": [
+        "What documents do I need?",
+        "What are the required documents?",
+        "Do I need to notarize anything?",
+        "What format should documents be in?",
+        "How do I submit documents?",
+        "What if I'm missing a document?",
+        "Can I submit documents later?",
+        "What's the file size limit?"
+      ],
+      "parameters": [
+        {
+          "name": "application_type",
+          "displayName": "Application Type",
+          "value": "$application_type",
+          "entityTypeDisplayName": "@sys.any"
+        }
+      ],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "**Required Documents for New Applications:**\n- Certificate of Enrollment\n- Transcript of Records (Latest)\n- Certificate of Good Moral\n- Income Certificate\n- Barangay Certificate\n- Valid ID (Government-issued)\n- Birth Certificate\n- Proof of Residency\n\n**Required Documents for Renewal:**\n- All above documents PLUS\n- Previous Scholarship Certificate\n\n**Document Guidelines:**\n- **Format:** PDF, JPG, or PNG\n- **File Size:** Maximum 5MB per file\n- **Notarization:** Some documents may require notarization (check current guidelines)\n- **Submission:** Upload through the application form\n\n**Tips:**\n- Ensure documents are clear and readable\n- Keep digital copies for your records\n- Submit all documents at once for faster processing\n\nWhich type of application are you working on? I can provide more specific guidance."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "scholarship_categories_help",
+      "displayName": "Scholarship Categories Help",
+      "description": "User needs information about different scholarship categories",
+      "trainingPhrases": [
+        "What types of scholarships are available?",
+        "What are the different categories?",
+        "Which scholarship should I apply for?",
+        "What's the difference between categories?",
+        "What are the requirements for each type?",
+        "How much is each scholarship worth?",
+        "What's an academic excellence scholarship?",
+        "What's a STEM scholarship?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "**Available Scholarship Categories:**\n\n**1. Scholarship for Tertiary Students**\n- For college/university students\n- Academic Excellence, Economic, Athletic, Cultural, Leadership subcategories\n- Amount: Varies by subcategory\n\n**2. Scholarship for Senior High School Students**\n- For SHS students\n- Similar subcategories as tertiary\n- Covers tuition and miscellaneous fees\n\n**3. Scholarship for Alternative Learning System (ALS)**\n- For ALS graduates\n- Supports continuing education\n- Special requirements apply\n\n**4. Scholarship for Technical Vocational Education**\n- For tech-voc students\n- Skills-based programs\n- Industry-focused training\n\n**Subcategories Include:**\n- **Academic Excellence** - High GPA requirements\n- **Economic** - Based on financial need\n- **Athletic** - For student-athletes\n- **Cultural** - For arts and culture\n- **Leadership** - For student leaders\n\n**Eligibility varies by category.** Would you like details about a specific scholarship type?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "deadline_information",
+      "displayName": "Deadline Information",
+      "description": "User asks about application deadlines",
+      "trainingPhrases": [
+        "What are the application deadlines?",
+        "When is the deadline?",
+        "How much time do I have to apply?",
+        "What's the last day to submit?",
+        "Are there different deadlines for different programs?",
+        "What happens if I miss the deadline?",
+        "Can I get an extension?",
+        "When do applications open?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "**Current Application Deadlines:**\n\n**Undergraduate Scholarship:** March 31, 2024\n**Graduate Scholarship:** April 15, 2024\n**Technical/Vocational:** May 30, 2024\n**Special Programs:** June 15, 2024\n\n**Important Notes:**\n- Applications typically open in January\n- Deadlines are strictly enforced\n- Late submissions are generally not accepted\n- Submit early to avoid last-minute issues\n\n**What to do if you miss the deadline:**\n- Check if there are any special circumstances\n- Contact the scholarship office immediately\n- Consider applying for the next academic year\n\n**Tips for meeting deadlines:**\n- Start gathering documents early\n- Complete the application in stages\n- Submit at least 1 week before deadline\n- Keep copies of all submissions\n\nWould you like me to help you plan your application timeline?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "contact_support",
+      "displayName": "Contact Support",
+      "description": "User needs to contact scholarship office or support",
+      "trainingPhrases": [
+        "How do I contact support?",
+        "What's the phone number?",
+        "How do I reach the scholarship office?",
+        "Who can I talk to about my application?",
+        "What's the email address?",
+        "Where is the office located?",
+        "What are the office hours?",
+        "I need to speak to someone"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "**Scholarship Office Contact Information:**\n\n**Office Hours:**\n- Monday to Friday: 8:00 AM - 5:00 PM\n- Saturday: 8:00 AM - 12:00 PM\n- Closed on Sundays and holidays\n\n**Contact Details:**\n- **Phone:** (02) 8888-1234\n- **Email:** scholarship@caloocan.gov.ph\n- **Address:** Caloocan City Hall, Scholarship Office, Ground Floor\n\n**For Specific Inquiries:**\n- **New Applications:** Ms. Maria Santos - maria.santos@caloocan.gov.ph\n- **Renewals:** Mr. Juan Cruz - juan.cruz@caloocan.gov.ph\n- **Technical Issues:** IT Support - itsupport@caloocan.gov.ph\n\n**Online Support:**\n- Use the 'Contact Support' button in your dashboard\n- Submit inquiries through the portal\n- Check the FAQ section first\n\n**Emergency Contact:**\n- For urgent matters, call the main office number\n- Leave a detailed message if no one answers\n\nWhat specific issue can I help you with?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "technical_issues",
+      "displayName": "Technical Issues",
+      "description": "User experiences technical problems with the system",
+      "trainingPhrases": [
+        "The website is not working",
+        "I can't log in",
+        "The form won't submit",
+        "I'm getting an error message",
+        "The page is loading slowly",
+        "I can't upload my documents",
+        "The system is down",
+        "I'm having trouble with the portal"
+      ],
+      "parameters": [
+        {
+          "name": "error_message",
+          "displayName": "Error Message",
+          "value": "$error_message",
+          "entityTypeDisplayName": "@sys.any"
+        }
+      ],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "I'm sorry you're experiencing technical issues. Here are some troubleshooting steps:\n\n**Quick Fixes:**\n1. **Refresh the page** - Press F5 or Ctrl+R\n2. **Clear browser cache** - Clear cookies and cached data\n3. **Try a different browser** - Chrome, Firefox, or Edge\n4. **Check your internet connection**\n5. **Disable browser extensions** temporarily\n\n**For Login Issues:**\n- Ensure you're using the correct email and password\n- Check if Caps Lock is on\n- Try the 'Forgot Password' option\n\n**For Upload Issues:**\n- Check file size (max 5MB per file)\n- Ensure file format is PDF, JPG, or PNG\n- Try uploading one file at a time\n\n**If problems persist:**\n- Contact IT Support: itsupport@caloocan.gov.ph\n- Call: (02) 8888-1234 ext. 123\n- Include your error message and browser details\n\nWhat specific error are you seeing? I can provide more targeted help."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "eligibility_requirements",
+      "displayName": "Eligibility Requirements",
+      "description": "User asks about eligibility requirements for scholarships",
+      "trainingPhrases": [
+        "Am I eligible for a scholarship?",
+        "What are the eligibility requirements?",
+        "Do I qualify for financial aid?",
+        "What's the minimum GPA required?",
+        "Do I need to be a Caloocan resident?",
+        "What age requirements are there?",
+        "Can I apply if I'm already in college?",
+        "What if I'm not a Filipino citizen?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "**General Eligibility Requirements:**\n\n**Residency:**\n- Must be a resident of Caloocan City\n- Proof of residency required\n\n**Academic Requirements:**\n- **Academic Excellence:** GPA 3.5 or higher\n- **Economic Scholarship:** GPA 2.5 or higher\n- **Other Categories:** GPA 2.0 or higher\n\n**Citizenship:**\n- Filipino citizen or dual citizen\n- Valid government-issued ID required\n\n**Age Requirements:**\n- No specific age limit for most programs\n- Must be enrolled in accredited institution\n\n**Financial Need:**\n- Income assessment required\n- Family income below certain thresholds\n- Special consideration for marginalized groups\n\n**Special Circumstances:**\n- PWD (Person with Disability)\n- Solo parent or child of solo parent\n- Indigenous people\n- OFW family members\n- 4Ps beneficiaries\n\n**Documentation:**\n- All required documents must be complete\n- Documents must be current (within 6 months)\n\n**Note:** Requirements may vary by scholarship category. Which specific scholarship are you interested in?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "disbursement_information",
+      "displayName": "Disbursement Information",
+      "description": "User asks about scholarship disbursements and payments",
+      "trainingPhrases": [
+        "When will I receive my scholarship money?",
+        "How are payments made?",
+        "What's the disbursement schedule?",
+        "How do I get my scholarship funds?",
+        "When is the next payment?",
+        "How much will I receive?",
+        "What if I don't receive my payment?",
+        "Can I change my payment method?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "**Scholarship Disbursement Information:**\n\n**Payment Schedule:**\n- **Semester-based:** Payments made per semester\n- **First Payment:** Usually 2-4 weeks after approval\n- **Subsequent Payments:** At the start of each semester\n\n**Payment Methods:**\n- **Digital Wallets:** GCash, Maya, SeaBank, CIMB\n- **Bank Transfer:** Direct deposit to your account\n- **Cash Pickup:** At designated locations (special cases)\n\n**Payment Amounts:**\n- Varies by scholarship category\n- **Academic Excellence:** Up to ₱50,000 per semester\n- **Economic:** Up to ₱30,000 per semester\n- **Other Categories:** Varies based on program\n\n**Requirements for Disbursement:**\n- Maintain enrollment status\n- Submit required documents on time\n- Meet academic performance standards\n- Complete any required community service\n\n**If Payment is Delayed:**\n- Check your digital wallet or bank account\n- Contact the scholarship office\n- Verify your account information\n- Check for any missing requirements\n\n**Important:** Keep your digital wallet or bank account active and updated. What's your preferred payment method?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "academic_performance_requirements",
+      "displayName": "Academic Performance Requirements",
+      "description": "User asks about maintaining scholarship through academic performance",
+      "trainingPhrases": [
+        "What GPA do I need to maintain?",
+        "What happens if my grades drop?",
+        "How do I keep my scholarship?",
+        "What are the academic requirements?",
+        "Can I lose my scholarship?",
+        "What if I fail a subject?",
+        "Do I need to maintain full-time status?",
+        "What's the minimum grade requirement?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "**Academic Performance Requirements:**\n\n**GPA Requirements by Category:**\n- **Academic Excellence:** Maintain 3.5 GPA\n- **Economic Scholarship:** Maintain 2.5 GPA\n- **Other Categories:** Maintain 2.0 GPA\n\n**Enrollment Requirements:**\n- Must maintain full-time enrollment\n- Complete required units per semester\n- No dropping of subjects without approval\n\n**Consequences of Poor Performance:**\n- **First Warning:** GPA below requirement for one semester\n- **Probation:** Two consecutive semesters below requirement\n- **Suspension:** Three consecutive semesters below requirement\n- **Termination:** Four consecutive semesters below requirement\n\n**Appeals Process:**\n- Submit written appeal within 30 days\n- Provide explanation for poor performance\n- Include improvement plan\n- May be granted one-time probation\n\n**Support Available:**\n- Academic counseling\n- Tutoring services\n- Study groups\n- Time management workshops\n\n**Important:** Regular monitoring of academic performance. If you're struggling, contact the scholarship office early for support. What's your current GPA situation?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "renewal_eligibility",
+      "displayName": "Renewal Eligibility",
+      "description": "User asks about renewing their scholarship",
+      "trainingPhrases": [
+        "Am I eligible for renewal?",
+        "How do I renew my scholarship?",
+        "What are the renewal requirements?",
+        "When can I apply for renewal?",
+        "How many times can I renew?",
+        "What if I don't meet renewal criteria?",
+        "Do I need to reapply every year?",
+        "What's the renewal process?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "**Scholarship Renewal Eligibility:**\n\n**Basic Requirements:**\n- Currently enrolled scholar\n- Maintained academic performance\n- Completed previous semester successfully\n- No major violations or issues\n\n**Academic Requirements:**\n- **Academic Excellence:** Maintain 3.5 GPA\n- **Economic Scholarship:** Maintain 2.5 GPA\n- **Other Categories:** Maintain 2.0 GPA\n\n**Documentation Required:**\n- Updated enrollment certificate\n- Latest transcript of records\n- Certificate of good moral\n- Updated income certificate\n- Barangay certificate\n- Previous scholarship certificate\n\n**Renewal Timeline:**\n- Apply 30 days before semester starts\n- Submit all documents on time\n- Processing takes 2-3 weeks\n- Approval before classes begin\n\n**Renewal Limits:**\n- **Undergraduate:** Up to 4 years (8 semesters)\n- **Graduate:** Up to 2 years (4 semesters)\n- **Technical/Vocational:** Up to 2 years\n\n**If Not Eligible:**\n- Appeal process available\n- May need to reapply as new applicant\n- Consider other scholarship categories\n\n**Important:** Start renewal process early. Missing deadlines may result in loss of scholarship. Are you currently enrolled and meeting the GPA requirements?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "general_faq",
+      "displayName": "General FAQ",
+      "description": "User asks general questions about the scholarship program",
+      "trainingPhrases": [
+        "What is the scholarship program?",
+        "Who runs this program?",
+        "How long has this been running?",
+        "How many students are helped?",
+        "What's the success rate?",
+        "Is this program legitimate?",
+        "How is it funded?",
+        "What makes this program special?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "**Caloocan City Scholarship Program Overview:**\n\n**Program Mission:**\n- Provide financial assistance to qualified students\n- Support educational advancement in Caloocan City\n- Promote academic excellence and community development\n\n**Program History:**\n- Established by the City Government of Caloocan\n- Running for over 10 years\n- Served thousands of students\n- High success rate (over 90% completion)\n\n**Program Features:**\n- Multiple scholarship categories\n- Comprehensive support system\n- Regular monitoring and guidance\n- Community service opportunities\n- Alumni network and mentorship\n\n**Funding:**\n- City government budget allocation\n- Public-private partnerships\n- Donor contributions\n- Transparent financial management\n\n**Success Stories:**\n- Many graduates now working professionals\n- Alumni giving back to the community\n- High employment rates among graduates\n- Strong community impact\n\n**Program Legitimacy:**\n- Official government program\n- Transparent processes\n- Regular audits and evaluations\n- Community oversight\n\n**Why Choose This Program:**\n- Local government support\n- Comprehensive assistance\n- Strong community ties\n- Proven track record\n\nWould you like to know more about any specific aspect of the program?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "application_troubleshooting",
+      "displayName": "Application Troubleshooting",
+      "description": "User has specific issues with their application",
+      "trainingPhrases": [
+        "I can't save my application",
+        "The form keeps resetting",
+        "I lost my progress",
+        "My information disappeared",
+        "I can't go to the next step",
+        "The validation is not working",
+        "I'm stuck on step 2",
+        "The form won't let me continue"
+      ],
+      "parameters": [
+        {
+          "name": "step_number",
+          "displayName": "Step Number",
+          "value": "$step_number",
+          "entityTypeDisplayName": "@sys.number"
+        },
+        {
+          "name": "specific_issue",
+          "displayName": "Specific Issue",
+          "value": "$specific_issue",
+          "entityTypeDisplayName": "@sys.any"
+        }
+      ],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "I can help you troubleshoot your application issue. Here are common solutions:\n\n**For Form Issues:**\n1. **Save frequently** - Use the 'Save Draft' button\n2. **Check required fields** - All red asterisk (*) fields must be filled\n3. **Validate data format** - Ensure dates, emails, and numbers are correct\n4. **Clear browser cache** - Refresh and try again\n\n**For Step Navigation:**\n- Complete all required fields in current step\n- Check for error messages\n- Ensure file uploads are successful\n- Try refreshing the page\n\n**For Data Loss:**\n- Check if you're logged in properly\n- Look for 'Save Draft' option\n- Contact support if data is completely lost\n- Start over if necessary (documents can be re-uploaded)\n\n**For Validation Errors:**\n- Check email format (user@domain.com)\n- Ensure phone numbers are 11 digits\n- Verify date formats (MM/DD/YYYY)\n- Check file sizes and formats\n\n**If Still Having Issues:**\n- Take a screenshot of the error\n- Note which step you're on\n- Contact technical support\n- Provide your reference number if available\n\nWhat specific step are you having trouble with? I can provide more targeted help."
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "document_upload_help",
+      "displayName": "Document Upload Help",
+      "description": "User needs help with uploading documents",
+      "trainingPhrases": [
+        "How do I upload documents?",
+        "What file formats are accepted?",
+        "My file is too large",
+        "The upload failed",
+        "I can't see my uploaded files",
+        "How many files can I upload?",
+        "Do I need to scan documents?",
+        "Can I upload from my phone?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "**Document Upload Guidelines:**\n\n**Accepted File Formats:**\n- **PDF** (recommended for documents)\n- **JPG/JPEG** (for photos)\n- **PNG** (for images)\n\n**File Size Limits:**\n- **Maximum:** 5MB per file\n- **Recommended:** 2-3MB for optimal upload speed\n- **Minimum:** 100KB\n\n**Upload Process:**\n1. Click 'Choose Files' or drag and drop\n2. Select multiple files at once\n3. Wait for upload confirmation\n4. Verify files appear in the list\n5. Remove any incorrect files\n\n**File Preparation Tips:**\n- **Scan documents** at 300 DPI for clarity\n- **Use PDF** for multi-page documents\n- **Name files clearly** (e.g., 'Transcript_2024.pdf')\n- **Ensure good lighting** for photos\n\n**Mobile Upload:**\n- Use your phone's camera\n- Ensure good lighting and focus\n- Hold phone steady\n- Check file size before uploading\n\n**Troubleshooting:**\n- **File too large:** Compress or resize\n- **Upload failed:** Check internet connection\n- **Wrong format:** Convert to PDF/JPG\n- **Can't see files:** Refresh page and try again\n\n**Important:** Upload all required documents at once for faster processing. Do you need help with a specific file type?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "scholarship_directory_info",
+      "displayName": "Scholarship Directory Info",
+      "description": "User asks about the scholarship directory modal",
+      "trainingPhrases": [
+        "What's in the scholarship directory?",
+        "Tell me about the announcements",
+        "What are the important dates?",
+        "Who are the coordinators?",
+        "What contact information is available?",
+        "How do I access the directory?",
+        "What updates are there?",
+        "Where can I find deadlines?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "**Scholarship Directory Information:**\n\n**Announcements:**\n- Application period updates\n- New scholarship categories\n- Policy changes\n- Important reminders\n- Program updates\n\n**Important Deadlines:**\n- **Undergraduate:** March 31, 2024\n- **Graduate:** April 15, 2024\n- **Technical/Vocational:** May 30, 2024\n- **Special Programs:** June 15, 2024\n\n**Contact Information:**\n- **Main Office:** (02) 8888-1234\n- **Email:** scholarship@caloocan.gov.ph\n- **Office Hours:** Mon-Fri 8AM-5PM, Sat 8AM-12PM\n- **Location:** Caloocan City Hall, Ground Floor\n\n**Program Coordinators:**\n- **New Applications:** Ms. Maria Santos\n- **Renewals:** Mr. Juan Cruz\n- **Technical Support:** IT Department\n\n**How to Access:**\n- Appears automatically when you log in\n- Click 'Scholarship Directory' button\n- Available in the main portal\n- Updated regularly\n\n**Directory Features:**\n- Real-time announcements\n- Deadline tracking\n- Contact directory\n- Program guidelines\n- FAQ section\n\n**Important:** Check the directory regularly for updates. Bookmark important contact information. Would you like specific contact details for any particular issue?"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "ucc_portal_info",
+      "displayName": "UCC Portal Info",
+      "description": "User asks about the UCC Portal feature",
+      "trainingPhrases": [
+        "What is the UCC Portal?",
+        "What's in the UCC Portal?",
+        "How do I access UCC Portal?",
+        "What does UCC stand for?",
+        "Is UCC Portal different from the main portal?",
+        "What resources are in UCC?",
+        "Do I need separate login for UCC?",
+        "What can I do in UCC Portal?"
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "text": {
+            "text": [
+              "**UCC Portal Information:**\n\n**What is UCC?**\n- UCC stands for 'University and College Connect'\n- Additional resource portal for students\n- Complementary to the main scholarship portal\n\n**UCC Portal Features:**\n- **Academic Resources:** Study materials, research tools\n- **Career Services:** Job listings, internship opportunities\n- **Student Services:** Counseling, health services\n- **Community:** Student forums, study groups\n- **Events:** Workshops, seminars, webinars\n\n**Available Resources:**\n- Online library access\n- Academic writing tools\n- Career assessment tests\n- Scholarship opportunities from other sources\n- Study abroad programs\n- Internship placements\n\n**Access Requirements:**\n- Must be a current scholarship recipient\n- Use same login credentials\n- No additional registration needed\n\n**How to Use:**\n- Click 'UCC Portal' button from main portal\n- Browse available resources\n- Participate in community discussions\n- Attend virtual events\n\n**Benefits:**\n- Enhanced academic support\n- Career development opportunities\n- Networking with other students\n- Additional learning resources\n\n**Note:** UCC Portal is currently under development. Some features may not be fully available yet. Would you like to know more about any specific UCC feature?"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

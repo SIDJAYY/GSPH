@@ -1,0 +1,68 @@
+# Enable rewrite engine
+RewriteEngine On
+
+# Handle API routes - pass through to backend
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^api/(.*)$ /api/$1 [L]
+
+# Handle client-side routing - serve index.html for all routes
+# (but not for API routes, which are handled above)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteRule . /index.html [L]
+
+# Set proper MIME types for assets
+<FilesMatch "\.(css)$">
+    Header set Content-Type "text/css"
+</FilesMatch>
+
+<FilesMatch "\.(js)$">
+    Header set Content-Type "application/javascript"
+</FilesMatch>
+
+<FilesMatch "\.(json)$">
+    Header set Content-Type "application/json"
+</FilesMatch>
+
+<FilesMatch "\.(svg)$">
+    Header set Content-Type "image/svg+xml"
+</FilesMatch>
+
+<FilesMatch "\.(png|jpg|jpeg|gif|ico|webp)$">
+    Header set Content-Type "image/$1"
+</FilesMatch>
+
+# Cache static assets
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|webp)$">
+    ExpiresActive On
+    ExpiresDefault "access plus 1 year"
+    Header set Cache-Control "public, immutable"
+</FilesMatch>
+
+# Don't cache HTML files (for SPA updates)
+<FilesMatch "\.(html)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+</FilesMatch>
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# Enable compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
