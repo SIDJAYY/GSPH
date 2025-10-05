@@ -61,10 +61,21 @@ export const GatewayLogin: React.FC = () => {
   const [showLoginSplash, setShowLoginSplash] = useState(false)
 	const navigate = useNavigate()
   const [now, setNow] = useState<string>(new Date().toLocaleString())
+  const [googleReady, setGoogleReady] = useState(false)
 
   useEffect(() => {
     const i = setInterval(() => setNow(new Date().toLocaleString()), 1000)
     return () => clearInterval(i)
+  }, [])
+
+  useEffect(() => {
+    const check = () => {
+      // ensure the Google Identity Services script is loaded
+      if (window.google) setGoogleReady(true)
+    }
+    check()
+    const id = setInterval(check, 300)
+    return () => clearInterval(id)
   }, [])
 
 	useEffect(() => {
@@ -114,6 +125,10 @@ export const GatewayLogin: React.FC = () => {
       })
       
       // Initialize Google OAuth
+      if (!window.google) {
+        console.error('Google OAuth not loaded')
+        return
+      }
       if (window.google) {
         const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '855545694637-gi7vtpce9f672hn7me86ugvv2nc8jp1q.apps.googleusercontent.com'
         if (!clientId) {
@@ -372,8 +387,8 @@ export const GatewayLogin: React.FC = () => {
     allViteEnvVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_'))
   })
   
-  // Force show the Google button for testing
-  const forceShowGoogle = true
+  // Check if Google OAuth is properly configured
+  const isGoogleOAuthConfigured = !!import.meta.env.VITE_GOOGLE_CLIENT_ID
 
 	return (
     <div className="min-h-screen bg-app flex flex-col">
@@ -464,9 +479,9 @@ export const GatewayLogin: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleGoogleLogin}
-                  disabled={!forceShowGoogle}
+                  disabled={!googleReady || !isGoogleOAuthConfigured}
                   className={`w-full py-3 px-6 rounded-lg font-semibold flex items-center justify-center transition-colors ${
-                    forceShowGoogle
+                    googleReady && isGoogleOAuthConfigured
                       ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
                       : 'bg-gray-100 border border-gray-200 text-gray-400 cursor-not-allowed'
                   }`}
@@ -478,13 +493,13 @@ export const GatewayLogin: React.FC = () => {
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                   </svg>
                   <span>
-                    {forceShowGoogle 
+                    {isGoogleOAuthConfigured 
                       ? 'Continue with Google' 
                       : 'Google OAuth Not Configured'
                     }
                   </span>
                 </button>
-                {!forceShowGoogle && (
+                {!isGoogleOAuthConfigured && (
                   <p className="text-xs text-gray-500 mt-2 text-center">
                     Google OAuth is not configured. Please contact support.
                   </p>

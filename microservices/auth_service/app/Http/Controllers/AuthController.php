@@ -245,21 +245,19 @@ class AuthController extends Controller
 
             $googleUser = json_decode($userResponse->getBody(), true);
 
-            // Find or create user
+            // Find user by email
             $user = User::where('email', $googleUser['email'])->first();
 
+            // If not registered, instruct frontend to open registration flow
             if (!$user) {
-                $user = User::create([
-                    'citizen_id' => 'CC' . date('Y') . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT),
-                    'first_name' => $googleUser['given_name'],
-                    'last_name' => $googleUser['family_name'],
-                    'email' => $googleUser['email'],
-                    'password' => Hash::make(Str::random(32)), // Random password for OAuth users
-                    'role' => 'student',
-                    'status' => 'active',
-                    'email_verified_at' => now(),
-                    'google_id' => $googleUser['id'],
-                ]);
+                return response()->json([
+                    'success' => false,
+                    'code' => 'NOT_REGISTERED',
+                    'message' => 'This Google account is not registered. Please complete registration.',
+                    'email' => $googleUser['email'] ?? null,
+                    'first_name' => $googleUser['given_name'] ?? null,
+                    'last_name' => $googleUser['family_name'] ?? null,
+                ], 404);
             }
 
             $token = $user->createToken('auth-token')->plainTextToken;

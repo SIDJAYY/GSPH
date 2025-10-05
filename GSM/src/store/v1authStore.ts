@@ -27,7 +27,7 @@ type AuthState = {
 	initializeAuth: () => Promise<void>
 }
 
-const API_BASE_URL = 'http://localhost:8000/api'
+const API_BASE_URL = import.meta?.env?.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
 
 // Utility function to construct full name from name components
 export const getFullName = (user: AuthUser): string => {
@@ -215,6 +215,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
 			const data = await response.json()
 			console.log('Google OAuth API response:', { status: response.status, data })
+
+			// Handle not-registered Google account
+			if (response.status === 404 && data?.code === 'NOT_REGISTERED') {
+				const email = data?.email || ''
+				const firstName = data?.first_name || ''
+				const lastName = data?.last_name || ''
+				// encode a simple directive the UI can react to
+				set({ error: `NOT_REGISTERED|${email}|${firstName}|${lastName}` })
+				return false
+			}
 
 			if (!response.ok) {
 				set({ error: data.message || 'Google login failed' })
