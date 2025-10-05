@@ -20,6 +20,8 @@ type AuthState = {
 	isLoading: boolean
 	isLoggingOut: boolean
 	login: (username: string, password: string) => Promise<boolean>
+	register: (userData: any) => Promise<boolean>
+	googleLogin: (code: string) => Promise<boolean>
 	logout: () => Promise<void>
 	clearError: () => void
 	initializeAuth: () => Promise<void>
@@ -137,6 +139,115 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 		} catch (error) {
 			set({ error: 'Network error. Please try again.' })
 			return false
+		}
+	},
+
+	register: async (userData: any) => {
+		set({ isLoading: true, error: null })
+		
+		try {
+			// Debug: Log the data being sent
+			console.log('Sending registration data to API:', userData)
+			
+			const response = await fetch(`${API_BASE_URL}/register`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Accept': 'application/json',
+				},
+				body: JSON.stringify({
+					...userData,
+					confirmPassword: userData.confirmPassword
+				}),
+			})
+
+			const data = await response.json()
+			
+			// Debug: Log the response
+			console.log('Registration API response:', { status: response.status, data })
+			
+			// Log detailed validation errors if any
+			if (response.status === 422 && data.errors) {
+				console.log('Validation errors:', data.errors)
+			}
+
+			if (!response.ok) {
+				// Show specific validation errors if available
+				if (response.status === 422 && data.errors) {
+					const errorMessages = Object.values(data.errors).flat()
+					set({ error: errorMessages.join(', ') })
+				} else {
+					set({ error: data.message || 'Registration failed' })
+				}
+				return false
+			}
+
+			if (data.success) {
+				set({ error: null })
+				return true
+			} else {
+				set({ error: data.message || 'Registration failed' })
+				return false
+			}
+		} catch (error) {
+			console.error('Registration error:', error)
+			set({ error: 'Network error. Please try again.' })
+			return false
+		} finally {
+			set({ isLoading: false })
+		}
+	},
+
+	googleLogin: async (code: string) => {
+		set({ isLoading: true, error: null })
+		
+		try {
+			console.log('Sending Google OAuth code to API:', code)
+			
+			const response = await fetch(`${API_BASE_URL}/auth/google`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Accept': 'application/json',
+				},
+				body: JSON.stringify({ code }),
+			})
+
+			const data = await response.json()
+			console.log('Google OAuth API response:', { status: response.status, data })
+
+			if (!response.ok) {
+				set({ error: data.message || 'Google login failed' })
+				return false
+			}
+
+			if (data.success) {
+				const { user, token } = data.data
+				set({ 
+					currentUser: {
+						id: String(user.id),
+						citizen_id: user.citizen_id ?? '',
+						email: user.email,
+						first_name: user.first_name,
+						last_name: user.last_name,
+						role: user.role,
+						is_active: true,
+					}, 
+					token, 
+					error: null 
+				})
+				localStorage.setItem('auth_token', token)
+				return true
+			} else {
+				set({ error: data.message || 'Google login failed' })
+				return false
+			}
+		} catch (error) {
+			console.error('Google OAuth error:', error)
+			set({ error: 'Network error. Please try again.' })
+			return false
+		} finally {
+			set({ isLoading: false })
 		}
 	},
 

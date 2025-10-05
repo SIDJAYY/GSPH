@@ -1,7 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, Lock } from 'lucide-react';
+import { Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
 import { useAuthStore } from '../store/v1authStore';
+
+// Google OAuth types
+declare global {
+  interface Window {
+    google: {
+      accounts: {
+        oauth2: {
+          initCodeClient: (config: any) => {
+            requestCode: () => void;
+          };
+        };
+      };
+    };
+  }
+}
 
 export const GatewayLogin: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -11,18 +26,41 @@ export const GatewayLogin: React.FC = () => {
   const [showOtp, setShowOtp] = useState(false)
   const [showTerms, setShowTerms] = useState(false)
   const [showPrivacy, setShowPrivacy] = useState(false)
-  const [otpTimer, setOtpTimer] = useState(180)
-	const { login, error, clearError } = useAuthStore()
+  const [otpTimer, setOtpTimer] = useState(300)
+  const [otpCode, setOtpCode] = useState(['', '', '', '', '', ''])
+  const [otpEmail, setOtpEmail] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showRegPassword, setShowRegPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [registrationData, setRegistrationData] = useState({
+    firstName: '',
+    lastName: '',
+    middleName: '',
+    suffix: '',
+    birthdate: '',
+    regEmail: '',
+    mobile: '',
+    address: '',
+    houseNumber: '',
+    street: '',
+    barangay: '',
+    regPassword: '',
+    confirmPassword: '',
+    noMiddleName: false
+  })
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    length: false,
+    upper: false,
+    lower: false,
+    number: false,
+    special: false
+  })
+	const { login, register, googleLogin, error, clearError } = useAuthStore()
 	const currentUser = useAuthStore(s => s.currentUser)
 	const isLoading = useAuthStore(s => s.isLoading)
-  const [minSplashDone, setMinSplashDone] = useState(false)
+  const [showLoginSplash, setShowLoginSplash] = useState(false)
 	const navigate = useNavigate()
   const [now, setNow] = useState<string>(new Date().toLocaleString())
-
-  useEffect(() => {
-    const t = setTimeout(() => setMinSplashDone(true), 1200)
-    return () => clearTimeout(t)
-  }, [])
 
   useEffect(() => {
     const i = setInterval(() => setNow(new Date().toLocaleString()), 1000)
@@ -36,10 +74,13 @@ export const GatewayLogin: React.FC = () => {
 		}
 	}, [currentUser, isLoading, navigate])
 
-  if (isLoading || !minSplashDone) {
+  if (isLoading) {
 		return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <img src="/splash.svg" alt="Loading" className="splash-logo" />
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
 			</div>
 		)
 	}
@@ -53,11 +94,286 @@ export const GatewayLogin: React.FC = () => {
     const ok = await login(email, password)
 		setSubmitting(false)
 		if (ok) {
-			const role = useAuthStore.getState().currentUser?.role
-      if (role === 'admin' || role === 'staff') navigate('/admin', { replace: true })
-      else navigate('/portal', { replace: true })
+			// Show splash screen before navigation
+			setShowLoginSplash(true)
+			setTimeout(() => {
+				const role = useAuthStore.getState().currentUser?.role
+				if (role === 'admin' || role === 'staff') navigate('/admin', { replace: true })
+				else navigate('/portal', { replace: true })
+			}, 1500) // Show splash for 1.5 seconds
+		}
+	}
+
+  const handleGoogleLogin = async () => {
+    try {
+      // Debug: Log environment variables
+      console.log('Environment check:', {
+        VITE_GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        NODE_ENV: import.meta.env.NODE_ENV,
+        MODE: import.meta.env.MODE
+      })
+      
+      // Initialize Google OAuth
+      if (window.google) {
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '855545694637-gi7vtpce9f672hn7me86ugvv2nc8jp1q.apps.googleusercontent.com'
+        if (!clientId) {
+          console.error('Google Client ID not configured')
+          showNotification('Google OAuth not configured. Please contact support.', 'error')
+          return
+        }
+        
+        window.google.accounts.oauth2.initCodeClient({
+          client_id: clientId,
+          scope: 'email profile',
+          ux_mode: 'popup',
+          callback: handleGoogleCallback
+        }).requestCode()
+      } else {
+        console.error('Google OAuth not loaded')
+        showNotification('Google OAuth not available. Please try again.', 'error')
+      }
+    } catch (error) {
+      console.error('Google login error:', error)
+      showNotification('Google login failed. Please try again.', 'error')
     }
   }
+
+  const handleGoogleCallback = async (response: any) => {
+    try {
+      console.log('Google OAuth response received:', response)
+      const success = await googleLogin(response.code)
+      if (success) {
+        // Show splash screen before navigation
+        setShowLoginSplash(true)
+        setTimeout(() => {
+          const role = useAuthStore.getState().currentUser?.role
+          if (role === 'admin' || role === 'staff') navigate('/admin', { replace: true })
+          else navigate('/portal', { replace: true })
+        }, 1500) // Show splash for 1.5 seconds
+      } else {
+        showNotification('Google login failed. Please try again.', 'error')
+      }
+    } catch (error) {
+      console.error('Google callback error:', error)
+      showNotification('Google login failed. Please try again.', 'error')
+    }
+  }
+
+  const handleRegistration = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    // Validate required fields
+    const requiredFields = ['firstName', 'lastName', 'birthdate', 'regEmail', 'mobile', 'address', 'houseNumber', 'street', 'barangay', 'regPassword', 'confirmPassword']
+    const missingFields = requiredFields.filter(field => !registrationData[field as keyof typeof registrationData])
+    
+    if (missingFields.length > 0) {
+      showNotification(`Please fill in all required fields: ${missingFields.join(', ')}`, 'error')
+      return
+    }
+    
+    // Validate password requirements
+    if (!Object.values(passwordRequirements).every(req => req)) {
+      showNotification('Please meet all password requirements', 'error')
+      return
+    }
+    
+    if (registrationData.regPassword !== registrationData.confirmPassword) {
+      showNotification('Passwords do not match', 'error')
+      return
+    }
+
+    // Validate mobile number format
+    const mobileRegex = /^09[0-9]{9}$/
+    if (!mobileRegex.test(registrationData.mobile)) {
+      showNotification('Mobile number must be in format 09XXXXXXXXX (11 digits starting with 09)', 'error')
+      return
+    }
+
+    // Validate birthdate is before today
+    const today = new Date().toISOString().split('T')[0]
+    if (registrationData.birthdate >= today) {
+      showNotification('Birthdate must be before today', 'error')
+      return
+    }
+
+    // Debug: Log the registration data being sent
+    console.log('Registration data being sent:', registrationData)
+    console.log('Required fields check:', {
+      firstName: !!registrationData.firstName,
+      lastName: !!registrationData.lastName,
+      birthdate: !!registrationData.birthdate,
+      regEmail: !!registrationData.regEmail,
+      mobile: !!registrationData.mobile,
+      address: !!registrationData.address,
+      houseNumber: !!registrationData.houseNumber,
+      street: !!registrationData.street,
+      barangay: !!registrationData.barangay,
+      regPassword: !!registrationData.regPassword,
+      confirmPassword: !!registrationData.confirmPassword
+    })
+
+    setSubmitting(true)
+    const success = await register(registrationData)
+    setSubmitting(false)
+    
+    if (success) {
+      showNotification('Registration successful! Please check your email for OTP verification.', 'success')
+      setOtpEmail(registrationData.regEmail)
+      setShowRegister(false)
+      setShowOtp(true)
+      startOtpTimer()
+    } else {
+      showNotification('Registration failed. Please try again.', 'error')
+    }
+  }
+
+  const updatePasswordRequirements = (password: string) => {
+    setPasswordRequirements({
+      length: password.length >= 10,
+      upper: /[A-Z]/.test(password),
+      lower: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      special: /[^A-Za-z0-9]/.test(password)
+    })
+  }
+
+  const startOtpTimer = () => {
+    setOtpTimer(300)
+    const interval = setInterval(() => {
+      setOtpTimer(prev => {
+        if (prev <= 1) {
+          clearInterval(interval)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }
+
+  const showNotification = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.notification')
+    existingNotifications.forEach(notification => notification.remove())
+    
+    // Create notification element
+    const notification = document.createElement('div')
+    notification.className = `notification fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full`
+    
+    // Set notification style based on type
+    switch (type) {
+      case 'success':
+        notification.classList.add('bg-green-500', 'text-white')
+        break
+      case 'error':
+        notification.classList.add('bg-red-500', 'text-white')
+        break
+      case 'warning':
+        notification.classList.add('bg-yellow-500', 'text-white')
+        break
+      default:
+        notification.classList.add('bg-blue-500', 'text-white')
+    }
+    
+    notification.innerHTML = `
+      <div class="flex items-center space-x-2">
+        <span>${message}</span>
+        <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+          ✕
+        </button>
+      </div>
+    `
+    
+    document.body.appendChild(notification)
+    
+    // Animate in
+    setTimeout(() => {
+      notification.classList.remove('translate-x-full')
+    }, 100)
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.classList.add('translate-x-full')
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove()
+          }
+        }, 300)
+      }
+    }, 5000)
+  }
+
+  const handleOtpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const code = otpCode.join('')
+    
+    if (code.length !== 6) {
+      showNotification('Please enter the complete 6-digit OTP', 'error')
+      return
+    }
+
+    try {
+      const res = await fetch('http://localhost:8000/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: otpEmail,
+          otp_code: code
+        })
+      })
+      
+      const data = await res.json()
+      
+      if (res.ok && data.success) {
+        setShowOtp(false)
+        showNotification('Account verified successfully! You can now login.', 'success')
+        // Reset OTP form
+        setOtpCode(['', '', '', '', '', ''])
+        setOtpEmail('')
+      } else {
+        showNotification(data.message || 'OTP verification failed', 'error')
+      }
+    } catch (error) {
+      console.error('OTP verification error:', error)
+      showNotification('Network error. Please try again.', 'error')
+    }
+  }
+
+  const handleResendOtp = async () => {
+    try {
+      const res = await fetch('http://localhost:8000/api/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: otpEmail })
+      })
+      
+      const data = await res.json()
+      
+      if (res.ok && data.success) {
+        startOtpTimer()
+        showNotification('New OTP sent successfully!', 'success')
+      } else {
+        showNotification(data.message || 'Failed to resend OTP', 'error')
+      }
+    } catch (error) {
+      console.error('Resend OTP error:', error)
+      showNotification('Network error. Please try again.', 'error')
+    }
+  }
+
+  // Debug: Log environment variables on component render
+  console.log('🔍 ENVIRONMENT DEBUG:', {
+    VITE_GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+    hasGoogleClientId: !!import.meta.env.VITE_GOOGLE_CLIENT_ID,
+    clientIdLength: import.meta.env.VITE_GOOGLE_CLIENT_ID?.length || 0,
+    mode: import.meta.env.MODE,
+    dev: import.meta.env.DEV,
+    prod: import.meta.env.PROD,
+    allViteEnvVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_'))
+  })
+  
+  // Force show the Google button for testing
+  const forceShowGoogle = true
 
 	return (
     <div className="min-h-screen bg-app flex flex-col">
@@ -97,7 +413,7 @@ export const GatewayLogin: React.FC = () => {
           {/* Right Login Card */}
           <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm mx-auto w-full">
             <form onSubmit={handleSubmit} className="space-y-5">
-						<div>
+						<div className="relative">
 								<input
                   type="email"
                   id="email"
@@ -109,17 +425,24 @@ export const GatewayLogin: React.FC = () => {
                   onChange={(e) => setEmail(e.target.value)}
 								/>
 							</div>
-						<div>
+						<div className="relative">
 								<input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
 									id="password"
 									name="password"
                   placeholder="Enter password"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-500 focus:border-transparent transition-all duration-200"
+                  className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-500 focus:border-transparent transition-all duration-200"
 									required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
 								/>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
 							</div>
 						{error && (
 							<div className="bg-red-50 border border-red-200 rounded-lg p-3">
@@ -138,10 +461,34 @@ export const GatewayLogin: React.FC = () => {
                 </div>
               </div>
               <div>
-                <button type="button" className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-6 rounded-lg font-semibold flex items-center justify-center">
-                  <span className="h-5 w-5 mr-2">🔒</span>
-                  <span>Continue with Google</span>
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={!forceShowGoogle}
+                  className={`w-full py-3 px-6 rounded-lg font-semibold flex items-center justify-center transition-colors ${
+                    forceShowGoogle
+                      ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      : 'bg-gray-100 border border-gray-200 text-gray-400 cursor-not-allowed'
+                  }`}
+                >
+                  <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                  </svg>
+                  <span>
+                    {forceShowGoogle 
+                      ? 'Continue with Google' 
+                      : 'Google OAuth Not Configured'
+                    }
+                  </span>
                 </button>
+                {!forceShowGoogle && (
+                  <p className="text-xs text-gray-500 mt-2 text-center">
+                    Google OAuth is not configured. Please contact support.
+                  </p>
+                )}
               </div>
               <div className="text-center">
                 <p className="text-gray-600 text-sm">No account yet? <button type="button" onClick={() => setShowRegister(true)} className="text-secondary-600 hover:underline font-semibold">Register here</button></p>
@@ -178,75 +525,213 @@ export const GatewayLogin: React.FC = () => {
               <h2 className="text-xl md:text-2xl font-semibold text-secondary-600">Create your GoServePH account</h2>
             </div>
             <div className="flex-1 overflow-y-auto p-6">
-              <form className="space-y-5">
+              <form onSubmit={handleRegistration} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm mb-1">First Name<span className="text-red-500">*</span></label>
-                  <input type="text" name="firstName" required className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                  <input 
+                    type="text" 
+                    name="firstName" 
+                    required 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    value={registrationData.firstName}
+                    onChange={(e) => setRegistrationData({...registrationData, firstName: e.target.value})}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Last Name<span className="text-red-500">*</span></label>
-                  <input type="text" name="lastName" required className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                  <input 
+                    type="text" 
+                    name="lastName" 
+                    required 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    value={registrationData.lastName}
+                    onChange={(e) => setRegistrationData({...registrationData, lastName: e.target.value})}
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1">Middle Name<span className="text-red-500">*</span></label>
-                  <input type="text" name="middleName" required className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                  <label className="block text-sm mb-1">
+                    Middle Name
+                    <span className="text-red-500" style={{display: registrationData.noMiddleName ? 'none' : 'inline'}}>*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    name="middleName" 
+                    required={!registrationData.noMiddleName}
+                    disabled={registrationData.noMiddleName}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    value={registrationData.middleName}
+                    onChange={(e) => setRegistrationData({...registrationData, middleName: e.target.value})}
+                  />
                   <label className="inline-flex items-center mt-2 text-sm">
-                    <input type="checkbox" className="mr-2" /> No middle name
+                    <input 
+                      type="checkbox" 
+                      className="mr-2"
+                      checked={registrationData.noMiddleName}
+                      onChange={(e) => setRegistrationData({...registrationData, noMiddleName: e.target.checked, middleName: e.target.checked ? '' : registrationData.middleName})}
+                    /> 
+                    No middle name
                   </label>
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Suffix</label>
-                  <input type="text" name="suffix" placeholder="Jr., Sr., III (optional)" className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                  <input 
+                    type="text" 
+                    name="suffix" 
+                    placeholder="Jr., Sr., III (optional)" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    value={registrationData.suffix}
+                    onChange={(e) => setRegistrationData({...registrationData, suffix: e.target.value})}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Birthdate<span className="text-red-500">*</span></label>
-                  <input type="date" name="birthdate" required className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                  <input 
+                    type="date" 
+                    name="birthdate" 
+                    required 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    value={registrationData.birthdate}
+                    onChange={(e) => setRegistrationData({...registrationData, birthdate: e.target.value})}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Email Address<span className="text-red-500">*</span></label>
-                  <input type="email" name="regEmail" required className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                  <input 
+                    type="email" 
+                    name="regEmail" 
+                    required 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    value={registrationData.regEmail}
+                    onChange={(e) => setRegistrationData({...registrationData, regEmail: e.target.value})}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Mobile Number<span className="text-red-500">*</span></label>
-                  <input type="tel" name="mobile" required className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="09XXXXXXXXX" />
+                  <input 
+                    type="tel" 
+                    name="mobile" 
+                    required 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                    placeholder="09XXXXXXXXX"
+                    value={registrationData.mobile}
+                    onChange={(e) => setRegistrationData({...registrationData, mobile: e.target.value})}
+                  />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm mb-1">Address<span className="text-red-500">*</span></label>
-                  <input type="text" name="address" required className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Lot/Unit, Building, Subdivision" />
+                  <input 
+                    type="text" 
+                    name="address" 
+                    required 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                    placeholder="Lot/Unit, Building, Subdivision"
+                    value={registrationData.address}
+                    onChange={(e) => setRegistrationData({...registrationData, address: e.target.value})}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm mb-1">House #<span className="text-red-500">*</span></label>
-                  <input type="text" name="houseNumber" className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                  <input 
+                    type="text" 
+                    name="houseNumber" 
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    value={registrationData.houseNumber}
+                    onChange={(e) => setRegistrationData({...registrationData, houseNumber: e.target.value})}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Street<span className="text-red-500">*</span></label>
-                  <input type="text" name="street" className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                  <input 
+                    type="text" 
+                    name="street" 
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    value={registrationData.street}
+                    onChange={(e) => setRegistrationData({...registrationData, street: e.target.value})}
+                  />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm mb-1">Barangay<span className="text-red-500">*</span></label>
-                  <input type="text" name="barangay" required className="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                  <input 
+                    type="text" 
+                    name="barangay" 
+                    required 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    value={registrationData.barangay}
+                    onChange={(e) => setRegistrationData({...registrationData, barangay: e.target.value})}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Password<span className="text-red-500">*</span></label>
                   <div className="relative">
-                    <input type="password" name="regPassword" minLength={10} required className="w-full px-3 py-2 border border-gray-300 rounded-lg pr-10" />
-                    <button type="button" className="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-700">👁</button>
+                    <input 
+                      type={showRegPassword ? "text" : "password"} 
+                      name="regPassword" 
+                      minLength={10} 
+                      required 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg pr-10"
+                      value={registrationData.regPassword}
+                      onChange={(e) => {
+                        setRegistrationData({...registrationData, regPassword: e.target.value})
+                        updatePasswordRequirements(e.target.value)
+                      }}
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowRegPassword(!showRegPassword)}
+                      className="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-700"
+                    >
+                      {showRegPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
                   <ul className="text-xs text-gray-600 mt-2 space-y-1">
-                    <li className="flex items-center"><span className="w-2 h-2 bg-gray-300 rounded-full mr-2"></span> At least 10 characters</li>
-                    <li className="flex items-center"><span className="w-2 h-2 bg-gray-300 rounded-full mr-2"></span> Has uppercase letter</li>
-                    <li className="flex items-center"><span className="w-2 h-2 bg-gray-300 rounded-full mr-2"></span> Has lowercase letter</li>
-                    <li className="flex items-center"><span className="w-2 h-2 bg-gray-300 rounded-full mr-2"></span> Has a number</li>
-                    <li className="flex items-center"><span className="w-2 h-2 bg-gray-300 rounded-full mr-2"></span> Has a special character</li>
+                    <li className={`flex items-center ${passwordRequirements.length ? 'text-green-600' : ''}`}>
+                      {passwordRequirements.length ? <CheckCircle size={12} className="mr-2" /> : <XCircle size={12} className="mr-2" />}
+                      At least 10 characters
+                    </li>
+                    <li className={`flex items-center ${passwordRequirements.upper ? 'text-green-600' : ''}`}>
+                      {passwordRequirements.upper ? <CheckCircle size={12} className="mr-2" /> : <XCircle size={12} className="mr-2" />}
+                      Has uppercase letter
+                    </li>
+                    <li className={`flex items-center ${passwordRequirements.lower ? 'text-green-600' : ''}`}>
+                      {passwordRequirements.lower ? <CheckCircle size={12} className="mr-2" /> : <XCircle size={12} className="mr-2" />}
+                      Has lowercase letter
+                    </li>
+                    <li className={`flex items-center ${passwordRequirements.number ? 'text-green-600' : ''}`}>
+                      {passwordRequirements.number ? <CheckCircle size={12} className="mr-2" /> : <XCircle size={12} className="mr-2" />}
+                      Has a number
+                    </li>
+                    <li className={`flex items-center ${passwordRequirements.special ? 'text-green-600' : ''}`}>
+                      {passwordRequirements.special ? <CheckCircle size={12} className="mr-2" /> : <XCircle size={12} className="mr-2" />}
+                      Has a special character
+                    </li>
                   </ul>
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Confirm Password<span className="text-red-500">*</span></label>
                   <div className="relative">
-                    <input type="password" name="confirmPassword" minLength={10} required className="w-full px-3 py-2 border border-gray-300 rounded-lg pr-10" />
-                    <button type="button" className="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-700">👁</button>
+                    <input 
+                      type={showConfirmPassword ? "text" : "password"} 
+                      name="confirmPassword" 
+                      minLength={10} 
+                      required 
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg pr-10"
+                      value={registrationData.confirmPassword}
+                      onChange={(e) => setRegistrationData({...registrationData, confirmPassword: e.target.value})}
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-700"
+                    >
+                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
                   </div>
+                  {registrationData.confirmPassword && registrationData.regPassword !== registrationData.confirmPassword && (
+                    <p className="text-red-500 text-xs mt-1">Passwords do not match</p>
+                  )}
                 </div>
               </div>
 
@@ -274,7 +759,9 @@ export const GatewayLogin: React.FC = () => {
 
               <div className="flex justify-end space-x-3 pt-2">
                 <button type="button" onClick={() => setShowRegister(false)} className="bg-red-500 text-white px-4 py-2 rounded-lg">Cancel</button>
-                <button type="button" onClick={() => { setShowRegister(false); setShowOtp(true); }} className="bg-secondary-500 hover:bg-secondary-600 text-white px-4 py-2 rounded-lg">Register</button>
+                <button type="submit" disabled={submitting} className="bg-secondary-500 hover:bg-secondary-600 text-white px-4 py-2 rounded-lg disabled:opacity-50">
+                  {submitting ? 'Registering...' : 'Register'}
+                </button>
               </div>
               </form>
             </div>
@@ -288,23 +775,57 @@ export const GatewayLogin: React.FC = () => {
           <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
             <h3 className="text-xl font-semibold mb-2 text-center">Two-Factor Verification</h3>
             <p className="text-sm text-gray-600 mb-4 text-center">Please check your registered email for your OTP. You have <span className="font-semibold text-secondary-600">{Math.floor(otpTimer / 60)}:{(otpTimer % 60).toString().padStart(2, '0')}</span> to enter it.</p>
-            <form className="space-y-4">
+            <form onSubmit={handleOtpSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm mb-2 text-center">Enter OTP</label>
-                <div className="flex justify-center space-x-2">
-                  <input type="text" className="w-12 h-12 text-center border border-gray-300 rounded-lg" maxLength={1} />
-                  <input type="text" className="w-12 h-12 text-center border border-gray-300 rounded-lg" maxLength={1} />
-                  <input type="text" className="w-12 h-12 text-center border border-gray-300 rounded-lg" maxLength={1} />
-                  <input type="text" className="w-12 h-12 text-center border border-gray-300 rounded-lg" maxLength={1} />
-                  <input type="text" className="w-12 h-12 text-center border border-gray-300 rounded-lg" maxLength={1} />
-                  <input type="text" className="w-12 h-12 text-center border border-gray-300 rounded-lg" maxLength={1} />
+                <div className="flex justify-center space-x-2" id="otpInputs">
+                  {[0, 1, 2, 3, 4, 5].map((index) => (
+                    <input 
+                      key={index}
+                      type="text" 
+                      className="w-12 h-12 text-center border border-gray-300 rounded-lg" 
+                      maxLength={1}
+                      inputMode="numeric"
+                      value={otpCode[index]}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 1)
+                        const newOtpCode = [...otpCode]
+                        newOtpCode[index] = value
+                        setOtpCode(newOtpCode)
+                        
+                        if (value && index < 5) {
+                          const nextInput = e.target.parentNode?.children[index + 1] as HTMLInputElement
+                          nextInput?.focus()
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Backspace' && !e.currentTarget.value && index > 0) {
+                          const prevInput = e.currentTarget.parentNode?.children[index - 1] as HTMLInputElement
+                          prevInput?.focus()
+                        }
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
               <div className="flex justify-between items-center">
                 <button type="button" onClick={() => setShowOtp(false)} className="px-4 py-2 rounded-lg bg-red-500 text-white">Cancel</button>
                 <div className="space-x-2">
-                  <button type="button" className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800" disabled>Resend OTP</button>
-                  <button type="button" onClick={() => setShowOtp(false)} className="px-4 py-2 rounded-lg bg-secondary-500 text-white">Verify</button>
+                  <button 
+                    type="button" 
+                    onClick={handleResendOtp}
+                    disabled={otpTimer > 0}
+                    className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 disabled:opacity-50"
+                  >
+                    Resend OTP
+                  </button>
+                  <button 
+                    type="submit" 
+                    disabled={otpTimer === 0}
+                    className="px-4 py-2 rounded-lg bg-secondary-500 text-white disabled:opacity-50"
+                  >
+                    Verify
+                  </button>
                 </div>
               </div>
             </form>
@@ -530,6 +1051,17 @@ export const GatewayLogin: React.FC = () => {
             <div className="border-t px-6 py-3 flex justify-end">
               <button type="button" onClick={() => setShowPrivacy(false)} className="px-4 py-2 rounded-lg bg-secondary-500 text-white">Close</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Login Success Splash Screen */}
+      {showLoginSplash && (
+        <div className="fixed inset-0 z-50 bg-white flex items-center justify-center">
+          <div className="text-center">
+            <img src="/splash.svg" alt="Loading" className="splash-logo mx-auto mb-4" />
+            <p className="text-gray-600 text-lg">Welcome to GoServePH!</p>
+            <p className="text-gray-500 text-sm">Redirecting you to your dashboard...</p>
           </div>
         </div>
       )}

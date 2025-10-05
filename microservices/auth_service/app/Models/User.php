@@ -26,8 +26,18 @@ class User extends Authenticatable
         'last_name',
         'middle_name',
         'extension_name',
+        'mobile',
+        'birthdate',
+        'address',
+        'house_number',
+        'street',
+        'barangay',
         'role',
+        'status',
         'is_active',
+        'email_verification_token',
+        'email_verified_at',
+        'google_id',
     ];
 
     /**

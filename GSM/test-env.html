@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Environment Test</title>
+</head>
+<body>
+    <h1>Environment Variables Test</h1>
+    <div id="output"></div>
+    
+    <script type="module">
+        const output = document.getElementById('output');
+        
+        // Test if we can access environment variables
+        const envTest = {
+            VITE_GOOGLE_CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+            hasGoogleClientId: !!import.meta.env.VITE_GOOGLE_CLIENT_ID,
+            allEnvVars: import.meta.env,
+            mode: import.meta.env.MODE,
+            dev: import.meta.env.DEV,
+            prod: import.meta.env.PROD
+        };
+        
+        output.innerHTML = '<pre>' + JSON.stringify(envTest, null, 2) + '</pre>';
+        console.log('Environment test:', envTest);
+    </script>
+</body>
+</html>
