@@ -26,6 +26,8 @@ export const GatewayLogin: React.FC = () => {
   const [showOtp, setShowOtp] = useState(false)
   const [showTerms, setShowTerms] = useState(false)
   const [showPrivacy, setShowPrivacy] = useState(false)
+  const [hasReadTerms, setHasReadTerms] = useState(false)
+  const [hasReadPrivacy, setHasReadPrivacy] = useState(false)
   const [otpTimer, setOtpTimer] = useState(300)
   const [otpCode, setOtpCode] = useState(['', '', '', '', '', ''])
   const [otpEmail, setOtpEmail] = useState('')
@@ -769,27 +771,75 @@ export const GatewayLogin: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex items-center text-sm">
                   <label className="inline-flex items-center">
-                    <input type="checkbox" className="mr-2" required />
+                    <input 
+                      type="checkbox" 
+                      className="mr-2" 
+                      required 
+                      checked={hasReadTerms}
+                      onChange={(e) => setHasReadTerms(e.target.checked)}
+                      disabled={!hasReadTerms}
+                    />
                     <span>I have read, understood, and agreed to the</span>
                   </label>
-                  <button type="button" onClick={() => setShowTerms(true)} className="ml-2 text-secondary-600 hover:underline">Terms of Use</button>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowTerms(true)} 
+                    className="ml-2 text-secondary-600 hover:underline font-semibold"
+                  >
+                    Terms of Use
+                  </button>
+                  {!hasReadTerms && <span className="ml-2 text-red-500 text-xs">(Must read first)</span>}
                 </div>
                 <div className="flex items-center text-sm">
                   <label className="inline-flex items-center">
-                    <input type="checkbox" className="mr-2" required />
+                    <input 
+                      type="checkbox" 
+                      className="mr-2" 
+                      required 
+                      checked={hasReadPrivacy}
+                      onChange={(e) => setHasReadPrivacy(e.target.checked)}
+                      disabled={!hasReadPrivacy}
+                    />
                     <span>I have read, understood, and agreed to the</span>
                   </label>
-                  <button type="button" onClick={() => setShowPrivacy(true)} className="ml-2 text-secondary-600 hover:underline">Data Privacy Policy</button>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPrivacy(true)} 
+                    className="ml-2 text-secondary-600 hover:underline font-semibold"
+                  >
+                    Data Privacy Policy
+                  </button>
+                  {!hasReadPrivacy && <span className="ml-2 text-red-500 text-xs">(Must read first)</span>}
                 </div>
                 <p className="text-xs text-gray-600">By clicking on the register button below, I hereby agree to both the Terms of Use and Data Privacy Policy</p>
               </div>
 
               <div className="flex justify-end space-x-3 pt-2">
                 <button type="button" onClick={() => setShowRegister(false)} className="bg-red-500 text-white px-4 py-2 rounded-lg">Cancel</button>
-                <button type="submit" disabled={submitting} className="bg-secondary-500 hover:bg-secondary-600 text-white px-4 py-2 rounded-lg disabled:opacity-50">
+                <button 
+                  type="submit" 
+                  disabled={submitting || !hasReadTerms || !hasReadPrivacy} 
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    submitting || !hasReadTerms || !hasReadPrivacy
+                      ? 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                      : 'bg-secondary-500 hover:bg-secondary-600 text-white'
+                  }`}
+                  title={
+                    !hasReadTerms || !hasReadPrivacy 
+                      ? 'Please read and accept Terms of Use and Data Privacy Policy first'
+                      : 'Click to register'
+                  }
+                >
                   {submitting ? 'Registering...' : 'Register'}
                 </button>
               </div>
+              {(!hasReadTerms || !hasReadPrivacy) && (
+                <div className="text-center mt-2">
+                  <p className="text-red-500 text-sm">
+                    You must read and accept both Terms of Use and Data Privacy Policy to register
+                  </p>
+                </div>
+              )}
               </form>
             </div>
           </div>
@@ -994,8 +1044,23 @@ export const GatewayLogin: React.FC = () => {
               </ul>
               <p>This Agreement and all incorporated policies constitute the entire agreement between you and GoServePH.</p>
             </div>
-            <div className="border-t px-6 py-3 flex justify-end">
-              <button type="button" onClick={() => setShowTerms(false)} className="px-4 py-2 rounded-lg bg-secondary-500 text-white">Close</button>
+            <div className="border-t px-6 py-3 flex justify-between items-center">
+              <label className="inline-flex items-center text-sm">
+                <input 
+                  type="checkbox" 
+                  className="mr-2" 
+                  checked={hasReadTerms}
+                  onChange={(e) => setHasReadTerms(e.target.checked)}
+                />
+                <span>I have read and understood the Terms of Use</span>
+              </label>
+              <button 
+                type="button" 
+                onClick={() => setShowTerms(false)} 
+                className="px-4 py-2 rounded-lg bg-secondary-500 text-white hover:bg-secondary-600"
+              >
+                {hasReadTerms ? 'Accept & Close' : 'Close'}
+              </button>
             </div>
           </div>
         </div>
@@ -1075,8 +1140,23 @@ export const GatewayLogin: React.FC = () => {
               </ul>
               <p>We reserve the right to suspend your Account or the Services if necessary to maintain system integrity and security, or to prevent harm. You waive any right to claim losses that result from a Breach or any action we take to prevent harm.</p>
             </div>
-            <div className="border-t px-6 py-3 flex justify-end">
-              <button type="button" onClick={() => setShowPrivacy(false)} className="px-4 py-2 rounded-lg bg-secondary-500 text-white">Close</button>
+            <div className="border-t px-6 py-3 flex justify-between items-center">
+              <label className="inline-flex items-center text-sm">
+                <input 
+                  type="checkbox" 
+                  className="mr-2" 
+                  checked={hasReadPrivacy}
+                  onChange={(e) => setHasReadPrivacy(e.target.checked)}
+                />
+                <span>I have read and understood the Data Privacy Policy</span>
+              </label>
+              <button 
+                type="button" 
+                onClick={() => setShowPrivacy(false)} 
+                className="px-4 py-2 rounded-lg bg-secondary-500 text-white hover:bg-secondary-600"
+              >
+                {hasReadPrivacy ? 'Accept & Close' : 'Close'}
+              </button>
             </div>
           </div>
         </div>
