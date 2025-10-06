@@ -136,7 +136,7 @@ class AuthController extends Controller
         // Generate citizen ID
         $citizenId = 'CC' . date('Y') . str_pad(rand(1, 999999), 6, '0', STR_PAD_LEFT);
 
-        // Create user
+        // Create user with email_verified_at = null (unverified)
         $user = User::create([
             'citizen_id' => $citizenId,
             'first_name' => $request->firstName,
@@ -152,6 +152,7 @@ class AuthController extends Controller
             'barangay' => $request->barangay,
             'password' => Hash::make($request->regPassword),
             'role' => 'student',
+            'email_verified_at' => null, // Email verification pending
             'status' => 'pending_verification',
             'email_verification_token' => Str::random(60),
         ]);

@@ -197,6 +197,13 @@ export const GatewayLogin: React.FC = () => {
       return
     }
 
+    // Validate email format
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    if (!emailRegex.test(registrationData.regEmail)) {
+      showNotification('Please enter a valid email address (e.g., user@example.com)', 'error')
+      return
+    }
+
     // Validate mobile number format
     const mobileRegex = /^09[0-9]{9}$/
     if (!mobileRegex.test(registrationData.mobile)) {
@@ -616,10 +623,15 @@ export const GatewayLogin: React.FC = () => {
                     type="email" 
                     name="regEmail" 
                     required 
+                    pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                    title="Please enter a valid email address (e.g., user@example.com)"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     value={registrationData.regEmail}
                     onChange={(e) => setRegistrationData({...registrationData, regEmail: e.target.value})}
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Accepts all email providers (Gmail, Yahoo, Outlook, etc.)
+                  </p>
                 </div>
                 <div>
                   <label className="block text-sm mb-1">Mobile Number<span className="text-red-500">*</span></label>
